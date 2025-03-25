@@ -23,6 +23,8 @@ type Subtask = {
 interface ProgressContextType {
 	categories: Category[];
 	addCategory: (name: string) => void;
+	updateCategory: (categoryId: string, name: string) => void;
+	removeCategory: (categoryId: string) => void;
 	addTask: (categoryId: string, name: string) => void;
 	removeTask: (categoryId: string, taskId: string) => void;
 	addSubtask: (categoryId: string, taskId: string, name: string) => void;
@@ -125,6 +127,24 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({
 			tasks: [],
 		};
 		setCategories([...categories, newCategory]);
+	};
+
+	const updateCategory = (categoryId: string, name: string) => {
+		setCategories(
+			categories.map((category) => {
+				if (category.id === categoryId) {
+					return {
+						...category,
+						name,
+					};
+				}
+				return category;
+			})
+		);
+	};
+
+	const removeCategory = (categoryId: string) => {
+		setCategories(categories.filter((category) => category.id !== categoryId));
 	};
 
 	const addTask = (categoryId: string, name: string) => {
@@ -334,6 +354,8 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({
 			value={{
 				categories,
 				addCategory,
+				updateCategory,
+				removeCategory,
 				addTask,
 				removeTask,
 				addSubtask,
