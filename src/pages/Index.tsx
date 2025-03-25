@@ -52,16 +52,18 @@ const Index = () => {
 		<div className="min-h-screen flex flex-col">
 			<header className="py-8 px-6 text-center">
 				<div className="flex items-center justify-between max-w-6xl mx-auto mb-4">
+					<div className="w-[40px]"></div>
 					<h1 className="text-3xl md:text-4xl font-bold">Progress Bubbles</h1>
 					<button
 						onClick={() => setIsEditMode(!isEditMode)}
-						className={`px-4 py-2 rounded-md transition-colors ${
+						className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
 							isEditMode
 								? "bg-primary text-primary-foreground hover:bg-primary/90"
 								: "bg-secondary hover:bg-secondary/80"
 						}`}
+						title={isEditMode ? "Done" : "Edit Categories"}
 					>
-						{isEditMode ? "Done" : "Edit Categories"}
+						<Edit2 size={20} />
 					</button>
 				</div>
 				<p className="text-muted-foreground max-w-lg mx-auto">
