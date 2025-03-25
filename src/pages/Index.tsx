@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Edit2, Trash2, Check, X } from "lucide-react";
+import { Plus, Edit2, Trash2, Check, X, Sun, Moon } from "lucide-react";
 import BubbleCloud from "../components/BubbleCloud";
 import { useProgress } from "../context/ProgressContext";
+import { useTheme } from "../context/ThemeContext";
 
 const Index = () => {
 	const { categories, addCategory, updateCategory, removeCategory } =
 		useProgress();
+	const { theme, toggleTheme } = useTheme();
 	const navigate = useNavigate();
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -52,7 +54,13 @@ const Index = () => {
 		<div className="min-h-screen flex flex-col">
 			<header className="py-8 px-6 text-center">
 				<div className="flex items-center justify-between max-w-6xl mx-auto mb-4">
-					<div className="w-[40px]"></div>
+					<button
+						onClick={toggleTheme}
+						className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary hover:bg-secondary/80 transition-colors"
+						title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+					>
+						{theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+					</button>
 					<h1 className="text-3xl md:text-4xl font-bold">Progress Bubbles</h1>
 					<button
 						onClick={() => setIsEditMode(!isEditMode)}
