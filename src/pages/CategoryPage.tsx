@@ -18,6 +18,7 @@ const CategoryPage = () => {
 		addSubtask,
 		removeSubtask,
 		updateSubtask,
+		updateTask,
 	} = useProgress();
 	const [selectedTask, setSelectedTask] = useState<string | null>(null);
 	const [isAddingTask, setIsAddingTask] = useState(false);
@@ -29,6 +30,12 @@ const CategoryPage = () => {
 		name: string;
 	} | null>(null);
 	const [editingSubtaskName, setEditingSubtaskName] = useState("");
+	const [isEditMode, setIsEditMode] = useState(false);
+	const [editingTask, setEditingTask] = useState<{
+		id: string;
+		name: string;
+	} | null>(null);
+	const [editingTaskName, setEditingTaskName] = useState("");
 
 	// Find the category
 	const category = categories.find((c) => c.id === categoryId);
@@ -106,6 +113,19 @@ const CategoryPage = () => {
 		}
 	};
 
+	const handleStartEditTask = (taskId: string, currentName: string) => {
+		setEditingTask({ id: taskId, name: currentName });
+		setEditingTaskName(currentName);
+	};
+
+	const handleUpdateTask = (taskId: string) => {
+		if (editingTaskName.trim()) {
+			updateTask(category.id, taskId, editingTaskName.trim());
+			setEditingTask(null);
+			setEditingTaskName("");
+		}
+	};
+
 	const selectedTaskData = selectedTask
 		? category.tasks.find((t) => t.id === selectedTask)
 		: null;
@@ -139,7 +159,16 @@ const CategoryPage = () => {
 						selectedTask ? "opacity-0 pointer-events-none" : "opacity-100"
 					}`}
 				>
-					<div className="absolute top-4 right-4 z-10">
+					<div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+						<button
+							onClick={() => setIsEditMode(!isEditMode)}
+							className={`bg-secondary rounded-full p-2 hover:bg-secondary/80 transition-colors ${
+								isEditMode ? "text-primary" : ""
+							}`}
+							title={isEditMode ? "Done" : "Edit Tasks"}
+						>
+							<Edit2 size={20} />
+						</button>
 						{!isAddingTask ? (
 							<button
 								onClick={() => setIsAddingTask(true)}
@@ -184,6 +213,58 @@ const CategoryPage = () => {
 							id: task.id,
 							name: task.name,
 							progress: calculateTaskProgress(category.id, task.id),
+							actions: isEditMode ? (
+								<div className="flex items-center gap-1">
+									{editingTask?.id === task.id ? (
+										<form
+											onSubmit={(e) => {
+												e.preventDefault();
+												handleUpdateTask(task.id);
+											}}
+											className="flex items-center gap-1 bg-background/95 backdrop-blur-sm rounded-lg p-1 shadow-lg"
+										>
+											<input
+												type="text"
+												value={editingTaskName}
+												onChange={(e) => setEditingTaskName(e.target.value)}
+												className="bg-background/80 backdrop-blur-sm rounded-md px-2 py-1 text-sm border border-input focus:outline-none focus:ring-2 focus:ring-primary"
+												autoFocus
+											/>
+											<button
+												type="submit"
+												className="bg-primary text-primary-foreground rounded-full p-1 hover:bg-primary/90 transition-colors"
+											>
+												<Check size={14} />
+											</button>
+											<button
+												type="button"
+												onClick={() => {
+													setEditingTask(null);
+													setEditingTaskName("");
+												}}
+												className="bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90 transition-colors"
+											>
+												<X size={14} />
+											</button>
+										</form>
+									) : (
+										<>
+											<button
+												onClick={() => handleStartEditTask(task.id, task.name)}
+												className="bg-background/95 backdrop-blur-sm p-1 hover:bg-secondary/50 rounded-full transition-colors shadow-lg"
+											>
+												<Edit2 size={14} />
+											</button>
+											<button
+												onClick={() => handleRemoveTask(task.id)}
+												className="bg-background/95 backdrop-blur-sm p-1 hover:bg-destructive/20 rounded-full transition-colors text-destructive shadow-lg"
+											>
+												<Trash2 size={14} />
+											</button>
+										</>
+									)}
+								</div>
+							) : undefined,
 						}))}
 						onBubbleClick={handleBubbleClick}
 					/>
@@ -339,7 +420,11 @@ const CategoryPage = () => {
 
 			<footer className="py-6 text-center text-sm text-muted-foreground">
 				{!selectedTask ? (
-					<p>Click on a bubble to view tasks</p>
+					<p>
+						{isEditMode
+							? "Edit tasks or click Done to exit edit mode"
+							: "Click on a bubble to view tasks"}
+					</p>
 				) : (
 					<p>Check items to update progress</p>
 				)}

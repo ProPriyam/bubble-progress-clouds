@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+	createContext,
+	useState,
+	useContext,
+	ReactNode,
+	useEffect,
+} from "react";
 
 // Define our context types
 type Category = {
@@ -26,6 +32,7 @@ interface ProgressContextType {
 	updateCategory: (categoryId: string, name: string) => void;
 	removeCategory: (categoryId: string) => void;
 	addTask: (categoryId: string, name: string) => void;
+	updateTask: (categoryId: string, taskId: string, name: string) => void;
 	removeTask: (categoryId: string, taskId: string) => void;
 	addSubtask: (categoryId: string, taskId: string, name: string) => void;
 	removeSubtask: (
@@ -114,7 +121,15 @@ const initialCategories: Category[] = [
 export const ProgressProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
-	const [categories, setCategories] = useState<Category[]>(initialCategories);
+	const [categories, setCategories] = useState<Category[]>(() => {
+		const savedCategories = localStorage.getItem("progress-categories");
+		return savedCategories ? JSON.parse(savedCategories) : initialCategories;
+	});
+
+	// Save categories to localStorage whenever they change
+	useEffect(() => {
+		localStorage.setItem("progress-categories", JSON.stringify(categories));
+	}, [categories]);
 
 	// Generate a simple unique ID
 	const generateId = () => `id${Date.now()}${Math.floor(Math.random() * 1000)}`;
@@ -161,6 +176,28 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({
 								subtasks: [],
 							},
 						],
+					};
+				}
+				return category;
+			})
+		);
+	};
+
+	const updateTask = (categoryId: string, taskId: string, name: string) => {
+		setCategories(
+			categories.map((category) => {
+				if (category.id === categoryId) {
+					return {
+						...category,
+						tasks: category.tasks.map((task) => {
+							if (task.id === taskId) {
+								return {
+									...task,
+									name,
+								};
+							}
+							return task;
+						}),
 					};
 				}
 				return category;
@@ -340,7 +377,7 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({
 	};
 
 	// Update progress values for each category
-	React.useEffect(() => {
+	useEffect(() => {
 		setCategories(
 			categories.map((category) => {
 				const progress = calculateProgress(category.id);
@@ -357,6 +394,7 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({
 				updateCategory,
 				removeCategory,
 				addTask,
+				updateTask,
 				removeTask,
 				addSubtask,
 				removeSubtask,
