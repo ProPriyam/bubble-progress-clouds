@@ -74,13 +74,9 @@ const Index = () => {
 						<Edit2 size={20} />
 					</button>
 				</div>
-				<p className="text-muted-foreground max-w-lg mx-auto">
-					Track your progress with interactive bubbles. Click on any bubble to
-					explore further.
-				</p>
 			</header>
 
-			<main className="flex-1 w-full max-w-6xl mx-auto px-4">
+			<main className="flex-1 w-full relative">
 				{isEditMode && (
 					<div className="mb-6">
 						{!isAddingCategory ? (
